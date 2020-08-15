@@ -37,8 +37,8 @@ namespace MimicAPI
                 app.UseDeveloperExceptionPage();
             }
 
-           // app.UseRouting();
-           
+            // app.UseRouting();
+            app.UseDeveloperExceptionPage();
             app.UseMvc();
 
         }
