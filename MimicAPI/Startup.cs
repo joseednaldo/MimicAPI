@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MimicAPI.Database;
+using MimicAPI.Repositories;
+using MimicAPI.Repositories.Interfaces;
+using AutoMapper;
+using MimicAPI.Helpers;
 
 namespace MimicAPI
 {
@@ -19,12 +23,27 @@ namespace MimicAPI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+
+            #region AutoMapper configuração
+            var config = new MapperConfiguration(cfg =>{
+                cfg.AddProfile(new DTOMapperProfile());
+            });
+            #endregion
+
+            IMapper mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
+
+
             //add mvc como serviço
             services.AddDbContext<MimicContext>(opt =>{
                 //Database  = nossa pasta criada "Database"
                 opt.UseSqlite("Data Source=Database\\Mimic.db");
             });
             services.AddMvc();
+            services.AddScoped<IPalavraRepository, PalavraRepository>();
+
+
+
             services.AddMvc(options => options.EnableEndpointRouting = false);
 
         }
