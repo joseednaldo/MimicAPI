@@ -1,14 +1,10 @@
 ﻿using AutoMapper;
-using MimicAPI.Models;
-using MimicAPI.Models.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MimicAPI.V1.Models;
+using MimicAPI.V1.Models.DTO;
 
 namespace MimicAPI.Helpers
 {
-    public class DTOMapperProfile: Profile
+    public class DTOMapperProfile : Profile
     {
         public DTOMapperProfile()
         {

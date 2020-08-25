@@ -1,24 +1,24 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MimicAPI.Helpers;
-using MimicAPI.Models;
-using MimicAPI.Models.DTO;
-using MimicAPI.Repositories.Interfaces;
+using MimicAPI.V1.Models;
+using MimicAPI.V1.Models.DTO;
+using MimicAPI.V1.Repositories.Interfaces;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-namespace MimicAPI.Controllers
+namespace MimicAPI.V1.Controllers
 {
 
-    //Criando rotas por atributos
-    [Route("api/palavras")]
+    [ApiController]
+    // [Route("api/palavras")]  //Criando rotas por atributos
+    [Route("api/v{verion:apiVersion}/[controller]")] // é o mesmo que => [Route("api/palavras")]  //Criando rotas por atributos
+    [ApiVersion("1.0")]
+    [ApiVersion("1.1")]//fala que o controlador tem as 2 versões.
+
+    // [ApiVersion("1.0", Deprecated = true)]  indica que a versao 1 esta absoleta.
     public class PalavrasController : ControllerBase
     {
-        private readonly IPalavraRepository  _repository;
+        private readonly IPalavraRepository _repository;
         private readonly IMapper _mapper;
 
         //ControllerBase usado para API, no entando posso usar tambem o Controller
@@ -31,11 +31,17 @@ namespace MimicAPI.Controllers
             _mapper = mapper;
         }
 
+
+        /*
+             * indica que o metodo funciona para as 2 bvesão
+            [MapToApiVersion("1.0")]
+            [MapToApiVersion("1.1")]
+        */
         //APP  
         //Ex: /api/palavras/data=2019-05-02
-       // [Route("")]
-        [HttpGet("",Name = "ObterTodas")]
-        public ActionResult ObterTodas([FromQuery]PalavraUrlQuery query )
+        // [Route("")]
+        [HttpGet("", Name = "ObterTodas")]
+        public ActionResult ObterTodas([FromQuery]PalavraUrlQuery query)
         {
 
             var item = _repository.ObterPalavras(query);
@@ -99,7 +105,7 @@ namespace MimicAPI.Controllers
         //ex: /api/palavras/1
 
         //[Route("{id}")]  -- é funcioandl mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
-        [HttpGet("{id}", Name ="ObterPalavra")]
+        [HttpGet("{id}", Name = "ObterPalavra")]
         public ActionResult Obter(int id)
         {
 
@@ -110,11 +116,11 @@ namespace MimicAPI.Controllers
             PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(obj);
             //palavraDTO.Links = new List<LinkDTO>();
             palavraDTO.Links.Add(
-                        new LinkDTO("self",Url.Link("ObterPalavra",new {id = palavraDTO.Id}),"GET")
+                        new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "GET")
                 );
 
             palavraDTO.Links.Add(
-                        new LinkDTO("update",Url.Link("AtualizarPalavra", new { id = palavraDTO.Id }), "PUT")
+                        new LinkDTO("update", Url.Link("AtualizarPalavra", new { id = palavraDTO.Id }), "PUT")
                 );
 
             palavraDTO.Links.Add(
@@ -132,12 +138,12 @@ namespace MimicAPI.Controllers
         {
 
             //Validando  contexto geral da url
-            if (palavra ==null)
+            if (palavra == null)
                 return BadRequest();
 
             //Validando os dados do objeto
             if (!ModelState.IsValid)
-                return  UnprocessableEntity(ModelState);
+                return UnprocessableEntity(ModelState);
 
             palavra.DtCriacao = DateTime.Now;
             palavra.Ativo = true;
@@ -157,7 +163,7 @@ namespace MimicAPI.Controllers
         #region Atualizar
         //[Route("{id}")]    -- é funcioandl mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
         //ex: /api/palavras/1 (put:id.nome,ativo,pontuacao,data)
-        [HttpPut("{id}",Name ="AtualizarPalavra")]
+        [HttpPut("{id}", Name = "AtualizarPalavra")]
         public ActionResult Atualizar(int id, [FromBody]Palavra palavra)
         {
 
@@ -169,12 +175,13 @@ namespace MimicAPI.Controllers
             palavra.Ativo = obj.Ativo;
             palavra.DtCriacao = obj.DtCriacao;
             palavra.DtAtualizacao = DateTime.Now;
+
             _repository.Atualizar(palavra);
 
-                PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(palavra);
-                palavraDTO.Links.Add(
-                    new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "PUT")
-                );
+            PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(palavra);
+            palavraDTO.Links.Add(
+                new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "PUT")
+            );
 
             return Ok();
         }
@@ -183,7 +190,8 @@ namespace MimicAPI.Controllers
         #region Delete
         //[Route("{id}")]  é funcional mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
         // ex: /api/palavras/1
-        [HttpDelete("{id}",Name ="ExcluirPalavra")]
+        [MapToApiVersion("1.1")]  // ESSE METODO SÓ FUNCIONA NA VERSAO 1.1
+        [HttpDelete("{id}", Name = "ExcluirPalavra")]
         public ActionResult Deletar(int id)
         {
             var _palavra = _repository.Obter(id);

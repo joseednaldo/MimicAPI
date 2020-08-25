@@ -1,19 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MimicAPI.Database;
-using MimicAPI.Repositories;
-using MimicAPI.Repositories.Interfaces;
-using AutoMapper;
 using MimicAPI.Helpers;
+using MimicAPI.V1.Repositories;
+using MimicAPI.V1.Repositories.Interfaces;
 
 namespace MimicAPI
 {
@@ -25,7 +20,8 @@ namespace MimicAPI
         {
 
             #region AutoMapper configuração
-            var config = new MapperConfiguration(cfg =>{
+            var config = new MapperConfiguration(cfg =>
+            {
                 cfg.AddProfile(new DTOMapperProfile());
             });
             #endregion
@@ -35,12 +31,24 @@ namespace MimicAPI
 
 
             //add mvc como serviço
-            services.AddDbContext<MimicContext>(opt =>{
+            services.AddDbContext<MimicContext>(opt =>
+            {
                 //Database  = nossa pasta criada "Database"
                 opt.UseSqlite("Data Source=Database\\Mimic.db");
             });
             services.AddMvc();
             services.AddScoped<IPalavraRepository, PalavraRepository>();
+            services.AddApiVersioning(cfg =>
+            {
+                cfg.ReportApiVersions = true;  // essa opção vai mostra no HEADERS as versiões suportada ex:(spi-suported  = 1.0 ,2.0)
+
+              // cfg.ApiVersionReader= new HeaderApiVersionReader("api-version");
+
+                /*trabalha juntas*/
+                // cfg.AssumeDefaultVersionWhenUnspecified=true ;  assumi a versao padrao quando nao especificamos. 
+                cfg.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1,0);
+
+            });
 
 
 
