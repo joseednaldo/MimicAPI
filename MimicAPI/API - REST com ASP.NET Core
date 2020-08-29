@@ -1,0 +1,684 @@
+####################################################
+Aprenda a construir API - REST com ASP.NET Core
+####################################################
+
+:: SESSÃO 1 - FERRAMENTAS ::
+
+AULA:8 baixar E INSTALAR O MESMO 
+-JA TENHO COM A CONTA DO GOOGLE.
+Instalando o postman.
+AULA: 9 baixar
+Instalando o LINQPAD.
+VAI NOS AJUDAR A ACESSAR NOSSO BANCO DE DAODS DE ARQUIVO.
+SQLSERVER COMPACT 
+
+AULA: 10
+EXPLICAO DAS APIS QUE VAMOS CRIAR.
+ADOBEXP - PROTOTIPAGEM DE TELAS. GRATUITO
+
+
+AULA: 11
+INSTALANDO O GITHUB
+
+
+
+
+:: SESSÃO 3 - TERIA API RES ::
+
+AULA: 12
+O QUE É UM API?
+"APPLICATION PROGRAMMING INTERFACE" => ASP.NET CORE API.
+
+Conjuntos de rotinas e padrões estabelecidos pro um sofware 
+para a utilização das suas funcionalidades por outros aplicativos.
+apenas para usaur os seus serviços.
+
+[
+ celular	---->        (API)    IMPLEMENTAÇÃO
+ browser	<-----     
+ tvs
+]
+
+AULA: 13
+O QUE É UM REST?
+Representational State Transfer (rest), o rest usa o protocolo http.
+È UM ESTILO DE ARQUITETURA DE SOFTWARE QUE DEFINE UM CONJUNTO DE RESTRIÇÕES A SEREM
+USADOS PARA A CRIAÇÃO DE WEB SERVICES (SERVIÇOS WEB).
+Padrão de comnuição entre 2 softwares...
+-PADRAO DE COMUNICAÃO ENTRE SISTEMA NO CASO REST.
+
+###################
+PRINCIPIOS DO REST
+###################
+
+1-CLIENT-SERVER ->ARQUITETURA CLIENTE SERVIDOR (HTTP)
+Ex: Um sistema solicita o outro responde.
+2-STATELESS = SEM ESTADO, NADA DE COOKIE.
+O QUE É "ESTADO" É BASICAMENTE INFORMAÇÃO DE SOLICITAÇÕES ANTERIORES, PODENDO SER GUARDADO VIA COOKIE.
+eX: Manter os dados de login do usuario que logou no sistema.
+Ou seja na cliação das nossas apis rest nao podemos usar cookies nem sessao.
+
+3-FOCO EM RECURSO = Api Rest é construida com foco nas entidades.
+nesse contexto recurso são o proposito do meu sistema ou seja as entidades
+O que é "entidade" nesse contexto => atuo nos dados informações principais,
+OU SEJA MINHAS TABELAS , CLIENTE ,FORNECEDOR ,VENDAS ...ETC
+
+4-OPERAÇÕES:=> Operações bem definidas por meio dos métodos http 
+GET/POST/PUT E DELETE.
+
+5-URI = È O NOSSO ENDERECO DO SITE,SINTAXE UNIVERSAL PARA IDENTIFICAR RECURSOS.
+IMPORTANTE PRA SOLICITAÇÕES NA NOSSA APIS.
+6-HIPERMEDIA = PERMITE NAVEGAR ENTRE "RECURSOS" E SABER COMO CONSUMIR.
+ENDERECO QUE OFERECER POSSIBILIDADE DE OUTROS RECURSOS DISPONIVEIS.
+
+
+
+########################################################
+REST - FOCO EM RECURSO, OPERAÇÕES(MÉTODOS)E URI
+########################################################
+RECURSO: CLIENTES(E-COMMERCE)
+
+MÉTODOS:
+
+[GET]  	/CLIENTES     	= OBTEM LISTA DE CLIENTES       / OU TRAZ TODO CLIENTES DA TABELA CLIENTE   
+[GET]  	/CLIENTES/{ID} 	= OBTEM APENAS 1 CLIENTE
+[POST] 	/CLIENTES       = CRIAR UM CLIENTE
+[PUT]	/CLEINTES/{ID}	= ATUALZIA/SUBSTITUI UM CLIENTE     *PODEMOS ALTERAR TODOS OS DADOS OU APENAS O NOME POR EXEMPLO
+[PATCH] /CLIENTES/{ID}  = ATUALZIA UM CLIENTE          		*FOCO PRINCIPAL EM UMA ATUALIZACAO PARCIAL EX: SO O ENDEREÇO DO CLIENTE.  /PODEMOS ALTERAR TODOS OS DADOS TAMBÉM.
+[DELETE]/CLIENTES/{ID}  =EXCLUI CLIENTE
+
+
+A URI É =>CLIENTES
+
+/CLIENTES  
+EX: ENDEREÇO COMPLETO DA API/CLIENTES 
+
+/CLIENTES/{ID}
+EX: ENDEREÇO COMPLETO DA API/CLIENTES /{50}
+
+
+
+################################################
+AULA: 14 
+CONFIGURAR O MVC E CRIAR A ENTIDADE PALAVRA
+################################################
+criando modelo..
+
+################################################
+AULA: 15 
+BANCO DE DADOS E MIMICCONTEXT
+################################################
+Foi instalado:
+Micrososft.EntityFrameworkcore.sqlite= banco de dados
+Micrososft.EntityFrameworkcore.Tools =  Para usar o Migration
+
+--Criando o estrutura do banco
+PM> Add-Migration BancoInicial
+--Rodar o migration criado no banco.
+Update-Database
+
+####
+atualziando o banco ja exsite
+####
+
+1- faço as devidas alterações.
+ex: altero dominio,crio novos dominios etc.
+
+2- Do um nome pra alteração realziada. Ex: AtualizaBanco
+Depois aplico: na linha de comando
+
+1-PM> Add-Migration 'AtualizaBanco'
+2-PM> Update-Database
+
+
+
+
+################################################
+AULA:16 Criando um controller
+PalavraController   -API
+################################################
+
+Ex:
+PalavrasController  :  "Controller"
+
+Obs:
+A classe Controller que esta sendo herdade => é mais focada em desenvolvimento de "SITES" (MVC)
+Com varios recursos, ex: ViewBag,ViewData,TempoData, View etc...
+
+--Nossa Api nao precisa de "ViewBag,ViewData,TempoData" então indicado é herda direto da "ControllerBase".
+A classe "ControllerBase"  é 
+
+
+Obs: posso usar qualquer um mas o mais indica para "API" é  "ControllerBase"
+
+
+################################################
+AULA:17  API - VERBOS E ROTAS
+################################################
+È CONFIGURADA NO ARQUIVO STARTUP MAS TAMBÉM PODEMOS
+CONFIGURAR NO CONTROLER ATRAVÉS DE ATRIBUTOS.
+verbos: HttpGet,HttpPost,HttpPut,HttpDelete
+UTILAZAÇÃOA DAS ROTAS E VERBOS
+
+################################################
+AULA:18  API - CONFIGURANDO O POSTMAN
+################################################
+CRIANDO COLLECTIONS = É UMA PASTA PRA AGRUPAR
+MINHAS APIS.
+CRIAÇÃO DOS METODOS PARA TESTES.
+
+
+
+################################################
+AULA:18  API - TESTANDO.
+################################################
+Precisamos o Verbo  HttpPost indicar de esta vindo os 
+dados, o mais indicado é   => FromBody
+
+ex:
+[HttpPost]
+public ActionResult Cadastrar([FromBody]Palavra palavra)
+
+
+
+################################################
+AULA:20. [TEORIA] Status Code
+################################################
+Códigos de status de respostas HTTP
+HTTP= trasnferencia de requisçao na internet , padroaniza as resuisições.
+Os códigos de status das respostas HTTP indicam se uma requisição HTTP foi corretamente concluída. 
+
+As respostas são "agrupadas" em cinco classes:
+Respostas de informação (100-199),não usamos em api
+Respostas de sucesso (200-299),
+Redirecionamentos (300-399)não usamos em api
+Erros do cliente (400-499)
+Erros do servidor (500-599).
+
+
+#########################
+CODIGO DE SUCESSO -API
+#########################
+
+200 = OK  (SEU ATE O SERVIDOR PROCESSOU E TIVEMOS A RESPOSTA DO SERVIDOR)
+MUITAS VEZES TEMOS ALGUMA INFORMAÇÃO DE RETORO EX: UMA LISTA.
+201  =CRIADO/CREATED =  FOI OK E AINDA  CRIAMOS UM REGISTRO NA API EX: POST
+202  =Aceita a resuisição mas nao retorno a resposta no momento. 
+a resposta vem depois. ou seja após alguns minutos de processamento 
+posso receber a resposta usando algumas tecnicas.
+204- Sem conteudo mas um  status de OK mas sem conteudo pra mostrar.
+ex:Delete.
+
+Todo codigo 200 e status de be sucedido.	
+
+
+####################
+HTPP CODES - ERRO DO LADO DO => CLIENTE - API
+###############
+
+400 = REQUISICAO INVALIDA (BAD RESQUEST)
+401 =Não autorizado (Unauthorized)   tem a ver com autenticação do usuario logado.
+403 =Proibido (forbidden) o usuario é autentucado  mais nao pode acessar o recurso.
+404 = Nao encontrado (not found) , também usado para API, ex: busco no banco por id que nao existe ai retorno um erro 404.
+405 = metodo nao permitido (not allowed)
+422 = Ent nao processavel
+500 - 
+
+
+Respostas de sucesso
+GET: O recurso foi buscado e transmitido no corpo da mensagem.
+HEAD: Os cabeçalhos da entidade estão no corpo da mensagem.
+PUT ou POST: O recurso descrevendo o resultado da ação é transmitido no corpo da mensagem.
+TRACE: O corpo da mensagem contém a mensagem de requisição recebida pelo servidor.
+
+
+################################################
+AULA:21. palavraContralor / http status code.
+################################################
+
+--Trabalhando com os stauts nos metodos.
+exmplos:
+ public ActionResult Obter(int id)
+        {
+
+            var obj = _Banco.Palavras.Find(id);
+            if (obj == null)
+                return NotFound();
+
+            return Ok(_Banco.Palavras.Find(id));
+        }
+
+        [Route("")]
+        // ex: /api/palavras (post:id.nome,ativo,pontuacao,data)
+        [HttpPost]
+        public ActionResult Cadastrar([FromBody]Palavra palavra)
+        {
+            _Banco.Palavras.Add(palavra);
+            _Banco.SaveChanges();
+            //return Ok();
+
+            return Created($"/api/palavras/{palavra.Id}", palavra);
+        }
+
+ public ActionResult Deletar(int id)
+        {
+            var _palavra = _Banco.Palavras.Find(id);
+            if (_palavra == null)
+                return NotFound();
+
+            _palavra.Ativo = false;
+            _Banco.Palavras.Update(_palavra);
+            _Banco.SaveChanges();
+
+            return NoContent(); //Ok();
+
+        }
+
+existem outros....
+
+################################################
+AULA:22. palavraContralor / filtro por datas.
+################################################
+-Melhorando os metodos.
+
+AsQueryable  = pra tabalhar com filtros...
+
+ public ActionResult ObterTodas(DateTime? data)
+        {
+            //O interesando é fazer uso do padrao "Repositoy" mas no momento, faremos dessa forma...pra estudo...
+
+            var item = _Banco.Palavras.AsQueryable();
+            if (data.HasValue)
+            {
+                item = item.Where(a => a.DtCriacao > data.Value || a.DtAtualizacao > data.Value);
+            }
+            
+            return Ok(item);
+        }
+
+################################################
+AULA:23. palavraContralor / paginação 1 
+################################################
+Usando o skip e o take.
+
+################################################
+AULA:24 / 25 palavraContralor / paginação 2 / 3 
+################################################
+Usando o skip e o take.
+Trabalhando com paginação7
+
+Tipo de recebimento de dados:
+FromQuery
+FromForm
+FromBody
+FromHeader
+
+usando uma classe para receber parametros.
+Muito com...
+ex:  
+public ActionResult ObterTodas([FromQuery]PalavraUrlQuery query )
+
+
+public class PalavraUrlQuery
+{
+	public DateTime? Data { get; set; }
+	public int? PagNumero { get; set; }
+	public int? PagRegistro { get; set; }
+}
+################################################
+AULA:26  RICHARDSON MATURITY MODEL
+################################################
+
+Esala de  0 1 2 3. nivel de evolução para API:
+Maturidade de um API...
+
+Level:  0
+-Utiliza o "http" para chamar funções
+-Trabalha apenas com um 1 endpoint (1 uri)
+(o  endpoint e apenas uma url "uri" o memso que "endereco" de entrada.
+
+Ex: http://www.site.com/servicos?method=cliente.pesquisa&nome=jose
+
+Level:  1
+-URI PARA CADA RECURSO.
+
+EX:
+http://www.site/clientes    							= recurso busca lista de clientes
+http://www.site/clientes/1  							= recurso busca um cliente.
+http://www.site/clientes/cadastrar?nome=jose&idade=30	= recurso cadastrar cliente.
+
+Level: 2 uso dos verbos...
+-Verbos http(get, put, patch,delete)
+-http - cabeçalhos (header)
+-http - Status code.
+
+get - http://www.site/com/clientes - 200
+get - http://www.site/com/clientes/1 - 200
+get - http://www.site/com/clientes - 201
+
+Level: 3  
+- Uso de Hypermedia- hateoas
+-(Hypermedia as the engine of application  state)
+-(Hypermedia como um motor do estado da aplicação)
+- Temo como objetivo mostra para comsumidor da API quais 
+ações estão disponivel no api.
+ex: Em uma API de vendas podemos "inluir nota" ,"cancelar venda",etc...
+ [
+	{
+		"rel":"self",
+		"href":"/cliente/19"
+	}
+ ],
+ 
+ 
+ex:
+{
+ "id":19,
+ "nome":"jose ednaldo dos santos",
+ "idade":36,
+ "cpf":325.636.148.05,
+ "links": 
+ [
+	{
+		"rel":"self",
+		"href":"/cliente/19"
+	}
+ ],
+ "compras":"http://www.site.com.br/19/compra"
+}
+
+######
+EX:  2
+#######
+// https://localhost:44347/api/palavras/2
+
+{
+  "id": 2,
+  "nome": "Elefante",
+  "pontuacao": 1,
+  "ativo": true,
+  "dtCriacao": "2020-05-01T00:00:00",
+  "dtAtualizacao": null,
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://localhost:44347/api/palavras/2",
+      "method": "GET"
+    },
+    {
+      "rel": "update",
+      "href": "https://localhost:44347/api/palavras/2",
+      "method": "PUT"
+    },
+    {
+      "rel": "DELETE",
+      "href": "https://localhost:44347/api/palavras/2",
+      "method": "DELETE"
+    }
+  ]
+}
+
+
+#######################################
+Aula 27 - PalavraRepository parte 1
+#######################################
+
+-Tirando o acoplamento dos controllers  com o uso de interfaces...
+as controles vai usar os repository.cs
+
+-criando pasta  (respositiry e interfaces)
+ex: IPalavraRepository  -> PalavraRepository
+    contrato 			-> Implementacao da classe.
+
+
+#######################################
+Aula 27/28 - PalavraRepository parte 2
+#######################################
+Trabalhando com o padrão "Repositity".
+
+#######################################
+Aula 29 - AutoMapper - DTO
+#######################################
+Trabalhando com o padrão "Repositity".
+
+-Fazendo a configuração da bibliteca "AutoMapper"  Nuget
+O AutoMapper é uma biblioteca pequena e simples construída para resolver um problema aparentemente complexo, que 
+é livrar-se de um código que mapeou um objeto para outro. Este tipo de problema é muito comum e relativamente trabalhoso de resolver, 
+a ferramenta AutoMapper atua nesse cenário de forma simples e elegante.
+
+AutoMapper = posso copia uma classe para ou classe com propriedades a mais.
+AutoMapper  =Nos ajuda a copia um objeto de um tipo pra outro.
+ex: tenho o objeto "palavra" quero copiar para o objeto "PalavraDTO"
+Neste cenário possuímos a Model de domínio (cliente).
+
+
+###################################################
+Aula 30 - AutoMapper - DTO    - VolTA NESSA AULA
+###################################################
+
+###################################################
+Aula 31/34 - PAGINAÇÃO
+###################################################
+
+
+###################################################
+Aula 35 heateos post / put
+###################################################
+
+
+###################################################
+Aula 36 VALIDAÇOES DE ENTIDADE
+###################################################
+-- POSSO USAR O FUNCIONARIODTO E TIRAR O VINCULO COM DOMINIO
+DIRETO.
+-AULA BOA PARA PDRONIZAR PROJETO PRA FACILICAR O USO
+DO DDD (TESTE).
+-NAO EXPOR O MODELO NA API...
+-USAR DATANOTATION
+
+
+ex:
+
+  //Validando os dados do objeto
+            if (!ModelState.IsValid)
+                return  UnprocessableEntity(ModelState);
+				
+	NO MODELO			
+  [Required]
+        public string Nome { get; set; }
+
+
+
+##################
+pra testes
+##################
+{
+  "Nome": "ednaldo",
+  "Pontuacao": 1,
+  "Ativo": true,
+  "DtCriacao": "2020-05-01",
+  "DtAtualizacao": null
+}
+
+
+JSON DE FUNCIONARIO: 
+{
+        "nome": "xxxx",
+        "cpf": "358",
+        "dataCadastro": null,
+        "dataNascimento": null,
+        "salario": 1500.00,
+        "celular": null,
+        "telResidencial": null,
+        "dtNascimento": "2020-12-12T00:00:00",
+        "email": null,
+        "ativo": true
+  }
+###################################################
+Aula 37 VERSIONSAMENTO DE API  - PARTE 1/2/3
+###################################################
+--Ainda nao vou usar na minha API so salao de beleza
+-- CRIANDO VERSÃO  V1 E V2 DA API
+-- INSTALACAO DOS PACOTES DE VERSIONSAMENTO.
+	Microsoft.AspNetCore.Mvc.Versioning     -- meu é 4.1.1 versão
+	Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer
+	
+
+O que é o [ApiController] ?
+È UM ATRIBUTO QUE FAZ COM QUE NOSSOS CONTROLADORES TENHA VARIAS FUNCIONALIDADES PARA API.
+VERSIONSAMENTO PRECISA DO ATRIBUTO.
+
+DICAS:
+PODEMOS USAR:
+[Route("api/palavras")] 
+OU
+[Route("api/v{verion:apiVersion}/[controller]")] 
+,controller vai mudar de forma automatica para "palavras"
+
+###################################################
+Aula 37 VERSIONSAMENTO DE API  - PARTE 2 
+###################################################
+No arquivo setup.cs  temos:
+cfg.ReportApiVersions = true;  sognifica que :  essa opção vai mostra no HEADERS as versões suportada ex:(api-suported-version  = 1.0 ,2.0)
+
+:: Nos controllers:
+
+[ApiController]
+[Route("api/v{verion:apiVersion}/[controller]")] // é o mesmo que => [Route("api/palavras")]  //Criando rotas por atributos
+[ApiVersion("1.0")]
+[ApiVersion("1.1")]//fala que o controlador tem as 2 versões.
+[ApiVersion("1.0",Deprecated =true)] //Deprecated sinifica que a versão esta obsoleta.
+
+
+Vamos ver no "headers"
+[key]						value
+api-suported-version        2.0 
+api-deprecated-version      1.0     versao antiga.
+
+
+/*
+         * indica que o metodo funciona para as 2 bvesão
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("1.1")]
+*/
+
+
+[MapToApiVersion("1.1")]  // ESSE METODO SÓ FUNCIONA NA VERSAO 1.1
+	[HttpDelete("{id}", Name = "ExcluirPalavra")]
+	public ActionResult Deletar(int id)
+	{
+		var _palavra = _repository.Obter(id);
+		if (_palavra == null)
+			return NotFound();
+
+		_repository.Deletar(id);
+		return NoContent(); //Ok();
+
+	}
+
+
+###################################################
+Aula 38/39 VERSIONSAMENTO DE API  - PARTE 3
+###################################################
+As possibilidades  de receber o numero da versao.
+Outra maneira de acessar as versions da api.
+TEMOS 3 FORMAS DE RECEBER AS VERSOES DA API.
+EX:
+[Route("api/v{verion:apiVersion}/[controller]")]      , ESSA É BACANA
+cfg.ApiVersionReader= new HeaderApiVersionReader("api-version");
+
+
+DICAS: NO MOMENTO PORTUNO FAZER TODA AULA NOVAMENTE DE VERSIONAMENTO APLICANDO EM 
+OUTRO CONTROLER...PRA PRATICAR O ESQUEMA.
+
+###################################################
+Aula  40 / aula 41  Importante Swagger
+###################################################
+Atenção: Instale a biblioteca Swashbuckle.AspNetCore na versão 4.0.1, a mesma usada no curso, outras versões exigem configurações diferentes.
+Swagger tools for documenting APIs built on ASP.NET Core = ferramenta para documentacao.
+
+
+AULA 37 ATÉ 43
+obs: VALE APENA ESTUDO TUDO NOVAMENTE SOBRE Versioning E SWAGGER
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################
+OUTROS EMEMPLO DE PROJETOS
+############################
+C:\site\GestaoFacil   -> sistema mvc core  (PROJETO -> PARADO NO MOMENTO) -> motivo:estamos fazendo no react...
+C:\GestaoFacil -> api que estou criando...
+C:\Users\adriano\source\repos\WebApiTeste  = PRA ESTUDO
+C:\AppLanches\LanchesMac    - sitre em mvc core
+
