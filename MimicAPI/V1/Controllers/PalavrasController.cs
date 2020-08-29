@@ -32,11 +32,14 @@ namespace MimicAPI.V1.Controllers
         }
 
 
-        /*
-             * indica que o metodo funciona para as 2 bvesão
-            [MapToApiVersion("1.0")]
-            [MapToApiVersion("1.1")]
-        */
+        /// <summary>
+        /// Operação que pega do banco todas as palavras existente
+        /// </summary>
+        /// <param name="query">Filtros de pesquisas</param>
+        /// <returns>Listagem de palavras</returns>
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("1.1")]
+       
         //APP  
         //Ex: /api/palavras/data=2019-05-02
         // [Route("")]
@@ -54,6 +57,135 @@ namespace MimicAPI.V1.Controllers
             return Ok(lista);
         }
 
+
+        /// <summary>
+        /// Operação que pega uma única palavra da base de dados
+        /// </summary>
+        /// <param name="id">Identificador da palavra</param>
+        /// <returns>Objeto de palavras</returns>
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("1.1")]
+        //web - ex: /api/palavras/1
+        //[Route("{id}")]  -- é funcioandl mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
+        [HttpGet("{id}", Name = "ObterPalavra")]
+        public ActionResult Obter(int id)
+        {
+
+            var obj = _repository.Obter(id);
+            if (obj == null)
+                return NotFound();
+
+            PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(obj);
+            //palavraDTO.Links = new List<LinkDTO>();
+            palavraDTO.Links.Add(
+                        new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "GET")
+                );
+
+            palavraDTO.Links.Add(
+                        new LinkDTO("update", Url.Link("AtualizarPalavra", new { id = palavraDTO.Id }), "PUT")
+                );
+
+            palavraDTO.Links.Add(
+                        new LinkDTO("DELETE", Url.Link("ExcluirPalavra", new { id = palavraDTO.Id }), "DELETE")
+                );
+
+            return Ok(palavraDTO);
+        }
+
+
+        /// <summary>
+        /// Operação que realizada o cadastro da plavra 
+        /// </summary>
+        /// <param name="palavra">Um objeto palavra</param>
+        /// <returns>Um objeto palavra com seu identificador</returns>
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("1.1")]
+        // ex: /api/palavras (post:id.nome,ativo,pontuacao,data)
+        [Route("")]
+        [HttpPost]
+        public ActionResult Cadastrar([FromBody]Palavra palavra)
+        {
+
+            //Validando  contexto geral da url
+            if (palavra == null)
+                return BadRequest();
+
+            //Validando os dados do objeto
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
+            palavra.DtCriacao = DateTime.Now;
+            palavra.Ativo = true;
+
+            _repository.Cadastrar(palavra);
+
+            PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(palavra);
+            palavraDTO.Links.Add(
+                        new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "GET")
+                );
+
+
+            return Created($"/api/palavras/{palavra.Id}", palavraDTO);
+
+        }
+
+
+        /// <summary>
+        /// Operação que atualiza no banco um palavra especifica
+        /// </summary>
+        /// <param name="id">Identificador da palavra a ser alterada</param>
+        /// <param name="palavra">Objeto palavra comos dados de alteração</param>
+        /// <returns></returns>
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("1.1")]
+        //[Route("{id}")]    -- é funcioandl mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
+        //ex: /api/palavras/1 (put:id.nome,ativo,pontuacao,data)
+        [HttpPut("{id}", Name = "AtualizarPalavra")]
+        public ActionResult Atualizar(int id, [FromBody]Palavra palavra)
+        {
+
+            var obj = _repository.Obter(id);
+            if (obj == null)
+                return NotFound();
+
+            palavra.Id = id;
+            palavra.Ativo = obj.Ativo;
+            palavra.DtCriacao = obj.DtCriacao;
+            palavra.DtAtualizacao = DateTime.Now;
+
+            _repository.Atualizar(palavra);
+
+            PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(palavra);
+            palavraDTO.Links.Add(
+                new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "PUT")
+            );
+
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// Operação que desativa uma palavra no banco de dados
+        /// </summary>
+        /// <param name="id">Identificador da palavra</param>
+        /// <returns></returns>
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("1.1")]
+        //[Route("{id}")]  é funcional mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
+        // ex: /api/palavras/1
+        [MapToApiVersion("1.1")]  // ESSE METODO SÓ FUNCIONA NA VERSAO 1.1
+        [HttpDelete("{id}", Name = "ExcluirPalavra")]
+        public ActionResult Deletar(int id)
+        {
+            var _palavra = _repository.Obter(id);
+            if (_palavra == null)
+                return NotFound();
+
+            _repository.Deletar(id);
+            return NoContent(); //Ok();
+
+        }
+    
         private PaginationList<PalavraDTO> CriarLinksListPalavraDTO(PalavraUrlQuery query, PaginationList<Palavra> item)
         {
             var lista = _mapper.Map<PaginationList<Palavra>, PaginationList<PalavraDTO>>(item);
@@ -98,110 +230,5 @@ namespace MimicAPI.V1.Controllers
 
             return lista;
         }
-
-
-        #region Method Obter
-        //web     
-        //ex: /api/palavras/1
-
-        //[Route("{id}")]  -- é funcioandl mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
-        [HttpGet("{id}", Name = "ObterPalavra")]
-        public ActionResult Obter(int id)
-        {
-
-            var obj = _repository.Obter(id);
-            if (obj == null)
-                return NotFound();
-
-            PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(obj);
-            //palavraDTO.Links = new List<LinkDTO>();
-            palavraDTO.Links.Add(
-                        new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "GET")
-                );
-
-            palavraDTO.Links.Add(
-                        new LinkDTO("update", Url.Link("AtualizarPalavra", new { id = palavraDTO.Id }), "PUT")
-                );
-
-            palavraDTO.Links.Add(
-                        new LinkDTO("DELETE", Url.Link("ExcluirPalavra", new { id = palavraDTO.Id }), "DELETE")
-                );
-
-            return Ok(palavraDTO);
-        }
-        #endregion
-
-        [Route("")]
-        // ex: /api/palavras (post:id.nome,ativo,pontuacao,data)
-        [HttpPost]
-        public ActionResult Cadastrar([FromBody]Palavra palavra)
-        {
-
-            //Validando  contexto geral da url
-            if (palavra == null)
-                return BadRequest();
-
-            //Validando os dados do objeto
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
-            palavra.DtCriacao = DateTime.Now;
-            palavra.Ativo = true;
-
-            _repository.Cadastrar(palavra);
-
-            PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(palavra);
-            palavraDTO.Links.Add(
-                        new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "GET")
-                );
-
-
-            return Created($"/api/palavras/{palavra.Id}", palavraDTO);
-
-        }
-
-        #region Atualizar
-        //[Route("{id}")]    -- é funcioandl mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
-        //ex: /api/palavras/1 (put:id.nome,ativo,pontuacao,data)
-        [HttpPut("{id}", Name = "AtualizarPalavra")]
-        public ActionResult Atualizar(int id, [FromBody]Palavra palavra)
-        {
-
-            var obj = _repository.Obter(id);
-            if (obj == null)
-                return NotFound();
-
-            palavra.Id = id;
-            palavra.Ativo = obj.Ativo;
-            palavra.DtCriacao = obj.DtCriacao;
-            palavra.DtAtualizacao = DateTime.Now;
-
-            _repository.Atualizar(palavra);
-
-            PalavraDTO palavraDTO = _mapper.Map<Palavra, PalavraDTO>(palavra);
-            palavraDTO.Links.Add(
-                new LinkDTO("self", Url.Link("ObterPalavra", new { id = palavraDTO.Id }), "PUT")
-            );
-
-            return Ok();
-        }
-        #endregion
-
-        #region Delete
-        //[Route("{id}")]  é funcional mas no momento não precisamos mais da rota, porque agora vamos usar o templapte da rota dento do HttpGet , conforme abaixo.
-        // ex: /api/palavras/1
-        [MapToApiVersion("1.1")]  // ESSE METODO SÓ FUNCIONA NA VERSAO 1.1
-        [HttpDelete("{id}", Name = "ExcluirPalavra")]
-        public ActionResult Deletar(int id)
-        {
-            var _palavra = _repository.Obter(id);
-            if (_palavra == null)
-                return NotFound();
-
-            _repository.Deletar(id);
-            return NoContent(); //Ok();
-
-        }
-        #endregion
     }
 }

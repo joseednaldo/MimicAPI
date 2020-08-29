@@ -2,13 +2,18 @@ using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.DotNet.PlatformAbstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.OpenApi.Models;
 using MimicAPI.Database;
 using MimicAPI.Helpers;
 using MimicAPI.V1.Repositories;
 using MimicAPI.V1.Repositories.Interfaces;
+using System.IO;
+using System.Linq;
 
 namespace MimicAPI
 {
@@ -37,22 +42,37 @@ namespace MimicAPI
                 opt.UseSqlite("Data Source=Database\\Mimic.db");
             });
             services.AddMvc();
+            services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddScoped<IPalavraRepository, PalavraRepository>();
+
             services.AddApiVersioning(cfg =>
             {
-                cfg.ReportApiVersions = true;  // essa opção vai mostra no HEADERS as versiões suportada ex:(spi-suported  = 1.0 ,2.0)
-
-              // cfg.ApiVersionReader= new HeaderApiVersionReader("api-version");
-
-                /*trabalha juntas*/
-                // cfg.AssumeDefaultVersionWhenUnspecified=true ;  assumi a versao padrao quando nao especificamos. 
-                cfg.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1,0);
+                cfg.ReportApiVersions = true;  // essa opção vai mostra no HEADERS as versiões suportada ex:(spi-suported  = 1.0 ,2.0)  //// ativar a disponibilização do versionamento da API
+                cfg.AssumeDefaultVersionWhenUnspecified = true; // parâmetro complementar ao ".DefaultApiVersion"
+                cfg.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0); // versão default - padrão ou sugerida.
 
             });
 
 
+            services.AddSwaggerGen(cfg => {
 
-            services.AddMvc(options => options.EnableEndpointRouting = false);
+                cfg.ResolveConflictingActions(apiDescription => apiDescription.First()); // para resolver conflitos de versões da API no Swagger, com mesmo nome.
+
+                cfg.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "ToDo API"
+
+                });
+
+
+                var CaminhoProjeto = PlatformServices.Default.Application.ApplicationBasePath;   //recupera o caminho do projeto...
+                var NomeProjeto = $"{PlatformServices.Default.Application.ApplicationName}.xml"; //recupera o nome do projeto...
+                var CaminhoArquivoXMLComentario = Path.Combine(CaminhoProjeto,NomeProjeto);
+                cfg.IncludeXmlComments(CaminhoArquivoXMLComentario);
+
+
+            });
 
         }
 
@@ -64,10 +84,23 @@ namespace MimicAPI
                 app.UseDeveloperExceptionPage();
             }
 
+       
             // app.UseRouting();
             app.UseDeveloperExceptionPage();
             app.UseMvc();
 
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MimicAPI");
+                    c.RoutePrefix = string.Empty;
+                });
+
+            }
         }
-    }
 }

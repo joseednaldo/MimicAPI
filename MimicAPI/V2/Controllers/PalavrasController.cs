@@ -12,9 +12,15 @@ namespace MimicAPI.V2.Controllers
     [ApiVersion("2.0")]
     public class PalavrasController: ControllerBase
     {
-        //APP  
-        //Ex: /api/palavras/data=2019-05-02
-        // [Route("")]
+
+        /// <summary>
+        /// Operação que pega do banco todas as palavras existente
+        /// </summary>
+        /// <param name="query">Filtros de pesquisas</param>
+        /// <returns>Listagem de palavras</returns>
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("1.1")]
+
         [HttpGet("", Name = "ObterTodas")]
         public string ObterTodas()
         {
